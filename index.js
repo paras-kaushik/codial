@@ -7,12 +7,17 @@ const db = require('./config/mongoose');
 const session = require('express-session');
 const passport = require('passport');
 const passportLocal = require('./config/passport-local-strategy');
+const passportJWT = require('./config/passport-jwt-strategy');
 const MongoStore = require('connect-mongo');
+const flash = require('connect-flash');
+const customMware = require('./config/middleware');// for sending flash with res
+const cors=require('cors');
 
 const app = express();
 const port = 8000;
 
-
+//8.
+app.use(cors());
 //6.  mongo store is used to store the session cookie in the db
 app.use(session({
     name: 'codeial',
@@ -34,6 +39,9 @@ app.use(passport.initialize());
 app.use(passport.session());
 app.use(passport.setAuthenticatedUser);// res.locals gets set of authenticated so views can render content
 
+// 7. Flash messages are store in session cookie - we need to do this after session middleware
+app.use(flash());
+app.use(customMware.setFlash);
 
 //5. allowing us to read and write to cookies and reading post requests
 app.use(cookieParser());
